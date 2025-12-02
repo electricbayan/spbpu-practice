@@ -60,6 +60,26 @@ int main()
   return err;
 }
 
+void topit::append(const IDraw* sh, p_t** ppts, size_t& s) {}
+topit::f_t topit::frame(const p_t* pts, size_t s) {
+  int minx = pts[0].x;
+  int miny = pts[0].y;
+  int maxx = minx, maxy = miny;
+  for (size_t i=1;i<s;i++) {
+    minx = std::min(minx, pts[i].x);
+    miny = std::min(miny, pts[i].y);
+    maxx = std::max(maxx, pts[i].x);
+    maxy = std::max(maxy, pts[i].y);
+  }
+  p_t a{minx, miny};
+  p_t b{maxx, maxy};
+  return {a, b};
+}
+char* topit::canvas(f_t fr, char fill) {}
+void topit::paint(p_t a, char* cnv, f_t fr, char fill) {}
+void topit::flush(std::ostream& os, char* cnv, f_t fr) {}
+
+
 topit::Dot::Dot(p_t dd):
   d(dd)
 {}
