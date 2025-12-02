@@ -17,6 +17,12 @@ namespace topit
     virtual p_t next(p_t prev) const=0;
     virtual ~IDraw() = default;
   };
+  struct Dot: IDraw {
+    p_t d;
+
+    p_t next() const override;
+    p_t next(p_t prev) const override;
+  };
 }
 
 int main()
@@ -26,6 +32,13 @@ int main()
   std::cout << (a == b) << '\n';
 }
 
+topit::p_t topit::Dot::next() const {
+  return d;
+}
+
+topit::p_t topit::Dot::next(p_t prev) const {
+  return d;
+}
 bool topit::operator==(p_t a, p_t b)
 {
   return a.x == b.x && a.y == b.y;
