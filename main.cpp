@@ -23,17 +23,24 @@ namespace topit
 
     p_t next() const override;
     p_t next(p_t prev) const override;
-
   };
+
+  void append(const IDraw* sh, p_t** ppts, size_t& s);
 }
 
 int main()
 {
   using namespace topit;
   IDraw* shp[3] = {};
+  p_t* pts = nullptr;
+  size_t s=0;
   int err=0;
   try{
     shp[0] = new Dot({0, 0});
+    for (size_t i=0;i<3;i++) {
+      append(shp[i], &pts, s);
+    }
+    f_t fr = frame();
   } catch (...) {
     err=1;
   }
