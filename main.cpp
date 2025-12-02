@@ -30,19 +30,20 @@ namespace topit
       p_t d;
   };
   struct VLine: IDraw {
-    VLine(p_t top, size_t length);
+    VLine(p_t top, int length);
     p_t begin() const override;
     p_t next(p_t prev) const override;
+    int getLength();
     private:
-      size_t length;
+      int length;
       p_t top;
   };
   struct HLine: IDraw {
-    HLine(p_t right, size_t length);
+    HLine(p_t right, int length);
     p_t begin() const override;
     p_t next(p_t prev) const override;
     private:
-      size_t length;
+      int length;
       p_t right;
   };
   p_t* extend(const p_t* pts, size_t s, p_t fill);
@@ -66,8 +67,9 @@ int main()
     shp[0] = new Dot({0, 0});
     shp[1] = new Dot({2, 4});
     shp[2] = new Dot({-5, -2});
-    shp[3] = new HLine({3, -1}, 4);
-    shp[4] = new HLine({4, 2}, 5);
+    shp[3] = new HLine({1, -1}, 4);
+    shp[4] = new VLine({4, 2}, 5);
+    VLine test = VLine({4, 2}, 5);
     for (size_t i = 0; i < 5; i++)
     {
       append(shp[i], &pts, s);
@@ -182,7 +184,7 @@ topit::p_t topit::Dot::next(p_t prev) const
   return d;
 }
 
-topit::HLine::HLine(p_t right, size_t length):
+topit::HLine::HLine(p_t right, int length):
   right(right),
   length(length)
  {}
@@ -190,16 +192,27 @@ topit::p_t topit::HLine::begin() const {
   return right;
 }
 topit::p_t topit::HLine::next(p_t b) const {
-  if (b.x-1 < (right.x - length)) {
+  if (b.x - 1 > (right.x - length)) {
     return p_t{b.x - 1, right.y};
   }
   return right;
 }
 
-topit::VLine::VLine(p_t top, size_t length):
+topit::VLine::VLine(p_t top, int length):
   top(top), length(length)
   {}
-
+topit::p_t topit::VLine::begin() const{
+  return top;
+}
+topit::p_t topit::VLine::next(p_t b) const {
+  if (b.y-1 > (top.y-length)) {
+    return p_t{top.x, b.y-1};
+  }
+  return top;
+}
+int topit::VLine::getLength() {
+  return length;
+}
 bool topit::operator==(p_t a, p_t b)
 {
   return a.x == b.x && a.y == b.y;
