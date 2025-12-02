@@ -16,7 +16,7 @@ namespace topit
   bool operator!=(p_t a, p_t b);
   struct IDraw
   {
-    virtual p_t next() const = 0;
+    virtual p_t begin() const = 0;
     virtual p_t next(p_t prev) const = 0;
     virtual ~IDraw() = default;
   };
@@ -25,10 +25,11 @@ namespace topit
     explicit Dot(p_t dd);
     p_t d;
 
-    p_t next() const override;
+    p_t begin() const override;
     p_t next(p_t prev) const override;
   };
   p_t* extend(const p_t* pts, size_t s, p_t fill);
+  void extend(p_t**pts, size_t& s, p_t fill);
   void append(const IDraw *sh, p_t **ppts, size_t &s);
   f_t frame(const p_t *pts, size_t s);
   char *canvas(f_t fr, char fill);
@@ -77,8 +78,19 @@ topit::p_t* topit::extend(const p_t* pts, size_t s, p_t fill) {
   r[s] = fill;
   return r;
 }
+void topit::extend(p_t**pts, size_t& s, p_t fill) {
+  p_t* r = extend(*pts, s, fill);
+  delete[] *pts;
+  ++s;
+  *pts=r;
+}
 void topit::append(const IDraw *sh, p_t **ppts, size_t &s) {
-
+  extend(ppts, s, sh->begin());
+  p_t b = sh->begin();
+  while (sh->next(b) != sh->begin()) {
+    b = sh-> next(b);
+    extend(ppts, s, b);
+  }
 }
 topit::f_t topit::frame(const p_t *pts, size_t s)
 {
@@ -135,7 +147,7 @@ size_t topit::cols(f_t fr)
 topit::Dot::Dot(p_t dd) :
 d(dd)
 {}
-topit::p_t topit::Dot::next() const
+topit::p_t topit::Dot::begin() const
 {
   return d;
 }
