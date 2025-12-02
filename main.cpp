@@ -26,8 +26,24 @@ namespace topit
 
     p_t begin() const override;
     p_t next(p_t prev) const override;
-    // private:
-    p_t d;
+    private:
+      p_t d;
+  };
+  struct VLine: IDraw {
+    VLine(p_t top, size_t length);
+    p_t begin() const override;
+    p_t next(p_t prev) const override;
+    private:
+      size_t length;
+      p_t top;
+  };
+  struct HLine: IDraw {
+    HLine(p_t right, size_t length);
+    p_t begin() const override;
+    p_t next(p_t prev) const override;
+    private:
+      size_t length;
+      p_t right;
   };
   p_t* extend(const p_t* pts, size_t s, p_t fill);
   void extend(p_t**pts, size_t& s, p_t fill);
@@ -35,25 +51,24 @@ namespace topit
   f_t frame(const p_t *pts, size_t s);
   char *canvas(f_t fr, char fill);
   void paint(p_t a, char *cnv, f_t fr, char fill);
-  void flush(std::ostream &os, char *cnv, f_t fr);
+  void flush(std::ostream &os, const char *cnv, f_t fr);
 }
 
 int main()
 {
   using namespace topit;
-  IDraw *shp[3] = {};
+  IDraw *shp[5] = {};
   p_t *pts = nullptr;
   size_t s = 0;
   int err = 0;
   try
   {
-    // shp[0] = new Dot({1, 1});
-    // std::cout<< shp[0]->begin().y;
-    // delete shp[0];
-    // return 1;
-    shp[0] = new Dot({2, 4});
-    shp[1] = new Dot({-5, -2});
-    for (size_t i = 0; i < 2; i++)
+    shp[0] = new Dot({0, 0});
+    shp[1] = new Dot({2, 4});
+    shp[2] = new Dot({-5, -2});
+    shp[3] = new HLine({3, -1}, 4);
+    shp[4] = new HLine({4, 2}, 5);
+    for (size_t i = 0; i < 5; i++)
     {
       append(shp[i], &pts, s);
     }
@@ -73,13 +88,15 @@ int main()
   }
   delete shp[0];
   delete shp[1];
-  // delete shp[2];
+  delete shp[2];
+  delete shp[3];
+  delete shp[4];
   return err;
 }
 
 topit::p_t* topit::extend(const p_t* pts, size_t s, p_t fill) {
   p_t* r = new p_t[s+1];
-  for (size_t i;i<s;i++) {
+  for (size_t i=0;i<s;i++) {
     r[i] = pts[i];
   }
   r[s] = fill;
@@ -131,7 +148,7 @@ void topit::paint(p_t a, char *cnv, f_t fr, char fill)
   size_t dx = a.x - fr.aa.x;
   cnv[dy * cols(fr) + dx] = fill;
 }
-void topit::flush(std::ostream &os, char *cnv, f_t fr)
+void topit::flush(std::ostream &os, const char *cnv, f_t fr)
 {
   for (size_t i = 0; i < rows(fr); i++)
   {
@@ -164,6 +181,25 @@ topit::p_t topit::Dot::next(p_t prev) const
 {
   return d;
 }
+
+topit::HLine::HLine(p_t right, size_t length):
+  right(right),
+  length(length)
+ {}
+topit::p_t topit::HLine::begin() const {
+  return right;
+}
+topit::p_t topit::HLine::next(p_t b) const {
+  if (b.x-1 < (right.x - length)) {
+    return p_t{b.x - 1, right.y};
+  }
+  return right;
+}
+
+topit::VLine::VLine(p_t top, size_t length):
+  top(top), length(length)
+  {}
+
 bool topit::operator==(p_t a, p_t b)
 {
   return a.x == b.x && a.y == b.y;
