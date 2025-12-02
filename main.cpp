@@ -14,12 +14,14 @@ namespace topit
   size_t cols(f_t fr);
   bool operator==(p_t a, p_t b);
   bool operator!=(p_t a, p_t b);
-  struct IDraw {
-    virtual p_t next() const=0;
-    virtual p_t next(p_t prev) const=0;
+  struct IDraw
+  {
+    virtual p_t next() const = 0;
+    virtual p_t next(p_t prev) const = 0;
     virtual ~IDraw() = default;
   };
-  struct Dot: IDraw {
+  struct Dot : IDraw
+  {
     explicit Dot(p_t dd);
     p_t d;
 
@@ -27,47 +29,54 @@ namespace topit
     p_t next(p_t prev) const override;
   };
 
-  void append(const IDraw* sh, p_t** ppts, size_t& s);
-  f_t frame(const p_t* pts, size_t s);
-  char* canvas(f_t fr, char fill);
-  void paint(p_t a, char* cnv, f_t fr, char fill);
-  void flush(std::ostream& os, char* cnv, f_t fr);
+  void append(const IDraw *sh, p_t **ppts, size_t &s);
+  f_t frame(const p_t *pts, size_t s);
+  char *canvas(f_t fr, char fill);
+  void paint(p_t a, char *cnv, f_t fr, char fill);
+  void flush(std::ostream &os, char *cnv, f_t fr);
 }
 
 int main()
 {
   using namespace topit;
-  IDraw* shp[3] = {};
-  p_t* pts = nullptr;
-  size_t s=0;
-  int err=0;
-  try{
+  IDraw *shp[3] = {};
+  p_t *pts = nullptr;
+  size_t s = 0;
+  int err = 0;
+  try
+  {
     shp[0] = new Dot({0, 0});
     shp[1] = new Dot({1, 1});
-    for (size_t i=0;i<3;i++) {
+    for (size_t i = 0; i < 3; i++)
+    {
       append(shp[i], &pts, s);
     }
     f_t fr = frame(pts, s);
-    char* cnv = canvas(fr, '.');
-    for (size_t i;i<s;i++) {
+    char *cnv = canvas(fr, '.');
+    for (size_t i; i < s; i++)
+    {
       paint(pts[i], cnv, fr, '#');
     }
     flush(std::cout, cnv, fr);
     delete[] cnv;
-  } catch (...) {
-    err=1;
+  }
+  catch (...)
+  {
+    err = 1;
   }
   delete[] shp[0];
   delete[] shp[1];
   return err;
 }
 
-void topit::append(const IDraw* sh, p_t** ppts, size_t& s) {}
-topit::f_t topit::frame(const p_t* pts, size_t s) {
+void topit::append(const IDraw *sh, p_t **ppts, size_t &s) {}
+topit::f_t topit::frame(const p_t *pts, size_t s)
+{
   int minx = pts[0].x;
   int miny = pts[0].y;
   int maxx = minx, maxy = miny;
-  for (size_t i=1;i<s;i++) {
+  for (size_t i = 1; i < s; i++)
+  {
     minx = std::min(minx, pts[i].x);
     miny = std::min(miny, pts[i].y);
     maxx = std::max(maxx, pts[i].x);
@@ -77,40 +86,52 @@ topit::f_t topit::frame(const p_t* pts, size_t s) {
   p_t b{maxx, maxy};
   return {a, b};
 }
-char* topit::canvas(f_t fr, char fill) {
-  char * r = new char[rows(fr) * cols(fr)];
-  for (size_t i=0;i<rows(fr)*cols(fr);i++) {
+char *topit::canvas(f_t fr, char fill)
+{
+  char *r = new char[rows(fr) * cols(fr)];
+  for (size_t i = 0; i < rows(fr) * cols(fr); i++)
+  {
     r[i] = fill;
   }
   return r;
 }
-void topit::paint(p_t a, char* cnv, f_t fr, char fill) {
-  size_t s = rows(fr) * cols(fr);
+void topit::paint(p_t a, char *cnv, f_t fr, char fill)
+{
+  size_t dy = fr.bb.y - a.y;
+  size_t dx = a.x - fr.aa.x;
+  cnv[dy * cols(fr) + dx] = fill;
 }
-void topit::flush(std::ostream& os, char* cnv, f_t fr) {
-  for(size_t i=0;i<rows(fr);i++) {
-    for(size_t j=0;j<cols(fr);j++) {
-      os<<cnv[i * cols(fr) + j];
+void topit::flush(std::ostream &os, char *cnv, f_t fr)
+{
+  for (size_t i = 0; i < rows(fr); i++)
+  {
+    for (size_t j = 0; j < cols(fr); j++)
+    {
+      os << cnv[i * cols(fr) + j];
     }
-    os<<'\n';
+    os << '\n';
   }
 }
 
-size_t topit::rows(f_t fr) {
+size_t topit::rows(f_t fr)
+{
   return fr.bb.y - fr.aa.y + 1;
 }
-size_t topit::cols(f_t fr) {
+size_t topit::cols(f_t fr)
+{
   return fr.bb.x = fr.aa.x + 1;
 }
 
-topit::Dot::Dot(p_t dd):
-  d(dd)
+topit::Dot::Dot(p_t dd) :
+d(dd)
 {}
-topit::p_t topit::Dot::next() const {
+topit::p_t topit::Dot::next() const
+{
   return d;
 }
 
-topit::p_t topit::Dot::next(p_t prev) const {
+topit::p_t topit::Dot::next(p_t prev) const
+{
   return d;
 }
 bool topit::operator==(p_t a, p_t b)
@@ -118,6 +139,7 @@ bool topit::operator==(p_t a, p_t b)
   return a.x == b.x && a.y == b.y;
 }
 
-bool topit::operator!=(p_t a, p_t b) {
-  return !(a==b);
+bool topit::operator!=(p_t a, p_t b)
+{
+  return !(a == b);
 }
