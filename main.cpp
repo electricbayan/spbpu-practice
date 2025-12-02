@@ -23,10 +23,11 @@ namespace topit
   struct Dot : IDraw
   {
     explicit Dot(p_t dd);
-    p_t d;
 
     p_t begin() const override;
     p_t next(p_t prev) const override;
+    // private:
+    p_t d;
   };
   p_t* extend(const p_t* pts, size_t s, p_t fill);
   void extend(p_t**pts, size_t& s, p_t fill);
@@ -46,15 +47,19 @@ int main()
   int err = 0;
   try
   {
-    shp[0] = new Dot({0, 0});
-    shp[1] = new Dot({1, 1});
-    for (size_t i = 0; i < 3; i++)
+    // shp[0] = new Dot({1, 1});
+    // std::cout<< shp[0]->begin().y;
+    // delete shp[0];
+    // return 1;
+    shp[0] = new Dot({2, 4});
+    shp[1] = new Dot({-5, -2});
+    for (size_t i = 0; i < 2; i++)
     {
       append(shp[i], &pts, s);
     }
     f_t fr = frame(pts, s);
     char *cnv = canvas(fr, '.');
-    for (size_t i; i < s; i++)
+    for (size_t i=0; i < s; i++)
     {
       paint(pts[i], cnv, fr, '#');
     }
@@ -64,9 +69,11 @@ int main()
   catch (...)
   {
     err = 1;
+    std::cerr << "Error\n";
   }
-  delete[] shp[0];
-  delete[] shp[1];
+  delete shp[0];
+  delete shp[1];
+  // delete shp[2];
   return err;
 }
 
@@ -78,7 +85,7 @@ topit::p_t* topit::extend(const p_t* pts, size_t s, p_t fill) {
   r[s] = fill;
   return r;
 }
-void topit::extend(p_t**pts, size_t& s, p_t fill) {
+void topit::extend(p_t** pts, size_t& s, p_t fill) {
   p_t* r = extend(*pts, s, fill);
   delete[] *pts;
   ++s;
@@ -110,8 +117,9 @@ topit::f_t topit::frame(const p_t *pts, size_t s)
 }
 char *topit::canvas(f_t fr, char fill)
 {
-  char *r = new char[rows(fr) * cols(fr)];
-  for (size_t i = 0; i < rows(fr) * cols(fr); i++)
+  size_t s = rows(fr) * cols(fr);
+  char *r = new char[s];
+  for (size_t i = 0; i < s; i++)
   {
     r[i] = fill;
   }
@@ -137,11 +145,11 @@ void topit::flush(std::ostream &os, char *cnv, f_t fr)
 
 size_t topit::rows(f_t fr)
 {
-  return fr.bb.y - fr.aa.y + 1;
+  return (fr.bb.y - fr.aa.y + 1);
 }
 size_t topit::cols(f_t fr)
 {
-  return fr.bb.x = fr.aa.x + 1;
+  return (fr.bb.x - fr.aa.x + 1);
 }
 
 topit::Dot::Dot(p_t dd) :
