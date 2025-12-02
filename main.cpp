@@ -28,7 +28,7 @@ namespace topit
     p_t next() const override;
     p_t next(p_t prev) const override;
   };
-
+  p_t* extend(const p_t* pts, size_t s, p_t fill);
   void append(const IDraw *sh, p_t **ppts, size_t &s);
   f_t frame(const p_t *pts, size_t s);
   char *canvas(f_t fr, char fill);
@@ -69,7 +69,17 @@ int main()
   return err;
 }
 
-void topit::append(const IDraw *sh, p_t **ppts, size_t &s) {}
+topit::p_t* topit::extend(const p_t* pts, size_t s, p_t fill) {
+  p_t* r = new p_t[s+1];
+  for (size_t i;i<s;i++) {
+    r[i] = pts[i];
+  }
+  r[s] = fill;
+  return r;
+}
+void topit::append(const IDraw *sh, p_t **ppts, size_t &s) {
+
+}
 topit::f_t topit::frame(const p_t *pts, size_t s)
 {
   int minx = pts[0].x;
